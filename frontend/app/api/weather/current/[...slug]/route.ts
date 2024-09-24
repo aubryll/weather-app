@@ -1,27 +1,24 @@
 /**
  * Next.js API Route to fetch the weather forecast for that day on the specified city and country.
- * Accessible via the endpoint: /api/weather/current/[...slug]
+ * Accessible via the endpoint: /api/weather/forecast/[...slug]
  * Example usage: /api/weather/forecast/lusaka/zambia
  */
 
 import axios from "axios";
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from "next/server";
 
-/**
- * API Route Handler
- * @param req - The HTTP request object
- * @param res - The HTTP response object
- */
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-): Promise<void> {
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { slug: string[] } }
+) {
   /**
    * Extracts the dynamic route parameters from the request.
    * `slug` is expected to be an array containing [city, country].
    * For example: ['lusaka', 'zambia']
    */
-  const slug = req.query.slug as string[];
+
+  const { slug } = params;
 
   /**
    * Validate that both city and country parameters are provided.
@@ -34,20 +31,24 @@ export default async function handler(
     try {
       const apiUrl = `${process.env.NEXT_PUBLIC_API_URI}/current/${city}/${country}`;
       const { data, status } = await axios.get(apiUrl);
-      res.status(status).json(data);
+      return NextResponse.json(data, { status});
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         const { status, data } = error.response;
-        res.status(status).json(data);
+        return NextResponse.json(data, { status});
       } else {
-        res.status(500).json({
-          error_description: "An unknown error occurred. Please try again.",
-        });
+
+        return NextResponse.json(
+          { error: 'An unknown error occurred. Please try again.' },
+          { status: 500 }
+        );
       }
     }
   } else {
-    res.status(400).json({
-      error_description: "City and country are required parameters.",
-    });
+        // Handle the case where city and country are not provided
+    return NextResponse.json(
+      { error: 'City and country are required parameters.' },
+      { status: 400 }
+    );
   }
 }

@@ -1,7 +1,17 @@
+"use client";
 import Image from "next/image";
 import styles from "./page.module.css";
+import { useCurrentWeather } from "./core/ReactQuery";
+import { useEffect } from "react";
 
 export default function Home() {
+  const _currentWeather = useCurrentWeather({
+    city: 'lusaka',
+    country: 'zm',
+  });
+
+
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -14,6 +24,9 @@ export default function Home() {
           priority
         />
         <ol>
+        <li>
+            0. {_currentWeather.data?.data.count}
+          </li>
           <li>
             Get started by editing <code>app/page.tsx</code>.
           </li>

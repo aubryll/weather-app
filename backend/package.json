@@ -7,23 +7,16 @@
     "start": "npm run build && npm run serve",
     "serve": "node -r dotenv/config build/server.js",
     "build": "npm run clean && npm run build-ts",
-    "watch": "npx concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run watch-node\"",
     "watch-node": "nodemon -r dotenv/config build/server.js",
     "clean": "rimraf ./build",
-    "build-ts": "tsc",
-    "watch-ts": "tsc -w",
-    "check": "tsc --noEmit",
-    "eslint": "eslint . --ext .js,.ts",
-    "upgrade": "npm update --save-dev && npm update --save",
-    "upgrade-latest": "npx npm-check-updates -u && npm install ",
-    "test": "jest --forceExit --detectOpenHandles --coverage --verbose"
+    "build-ts": "tsc"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/aubryll/weather-app.git"
   },
-  "author": "Janishar Ali",
-  "license": "Apache-2.0",
+  "author": "Aubry Lungu",
+  "license": "MIT",
   "dependencies": {
     "axios": "^1.6.5",
     "cors": "^2.8.5",

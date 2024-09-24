@@ -5,19 +5,20 @@
  */
 import axios from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from "next/server";
 
-/**
- * API Route Handler
- * @param req - The HTTP request object
- * @param res - The HTTP response object
- */
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { slug: string[] } }
+) {
   /**
    * Extracts the dynamic route parameters from the request.
    * `slug` is expected to be an array containing [city, country].
    * For example: ['lusaka', 'zambia']
    */
-  const slug = req.query.slug as string[];
+
+  const { slug } = params;
 
   /**
    * Validate that both city and country parameters are provided.
@@ -30,21 +31,23 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       const { data, status } = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URI}/forecast/${city}/${country}`
       );
-      res.status(status).json(data);
+      return NextResponse.json(data, { status});
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         const { status, data } = error.response;
-        res.status(status).json(data);
+        return NextResponse.json(data, { status});
       } else {
-        res.status(500).send({
-          error_description: "Unknown error occurred, try again",
-        });
+        return NextResponse.json(
+          { error: 'An unknown error occurred. Please try again.' },
+          { status: 500 }
+        );
       }
     }
   } else {
     // Handle the case where city and country are not provided
-    res.status(400).json({
-      error_description: "City and country are required parameters",
-    });
+    return NextResponse.json(
+      { error: 'City and country are required parameters.' },
+      { status: 400 }
+    );
   }
 };
