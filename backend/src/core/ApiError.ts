@@ -1,15 +1,17 @@
 import { Response } from 'express';
-import { StatusCodes } from 'http-status-codes';
 import { ApiResponse } from './ApiResponse';
-
+import { HttpStatusCode } from 'axios';
 export class ErrorResponse extends ApiResponse {
-  constructor(statusCode: StatusCodes, message: string) {
+  constructor(statusCode: HttpStatusCode, message: string) {
     super(statusCode, message);
   }
 }
 
 export abstract class ApiError extends Error {
-  constructor(public statusCode: StatusCodes, public message: string = 'error') {
+  constructor(
+    public statusCode: HttpStatusCode, 
+    public message: string = 'error',
+  ) {
     super(message);
   }
 
@@ -19,7 +21,7 @@ export abstract class ApiError extends Error {
     // In production, hide detailed error messages for internal server errors
     if (
       process.env.NODE_ENV === 'production' &&
-      err.statusCode === StatusCodes.INTERNAL_SERVER_ERROR
+      err.statusCode === HttpStatusCode.InternalServerError
     ) {
       message = 'An unexpected error occurred.';
     }
@@ -31,25 +33,25 @@ export abstract class ApiError extends Error {
 
 export class ForbiddenError extends ApiError {
   constructor(message = 'Access Forbidden') {
-    super(StatusCodes.FORBIDDEN, message);
+    super(HttpStatusCode.Forbidden, message);
   }
 }
 
 export class BadRequestError extends ApiError {
   constructor(message = 'Bad Request') {
-    super(StatusCodes.BAD_REQUEST, message);
+    super(HttpStatusCode.BadRequest, message);
   }
 }
 
 export class NotFoundError extends ApiError {
   constructor(message = 'Resource Not Found') {
-    super(StatusCodes.NOT_FOUND, message);
+    super(HttpStatusCode.NotFound, message);
   }
 }
 
 export class InternalError extends ApiError {
   constructor(message = 'Internal Server Error') {
-    super(StatusCodes.INTERNAL_SERVER_ERROR, message);
+    super(HttpStatusCode.InternalServerError, message);
   }
 }
 

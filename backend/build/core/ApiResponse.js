@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SuccessResponse = exports.FailureMsgResponse = exports.SuccessMsgResponse = exports.InternalErrorResponse = exports.BadRequestResponse = exports.ForbiddenResponse = exports.NotFoundResponse = exports.ApiResponse = void 0;
-const http_status_codes_1 = require("http-status-codes");
+const axios_1 = require("axios");
 class ApiResponse {
     statusCode;
     message;
@@ -16,6 +16,7 @@ class ApiResponse {
         }
         // Build the response body
         const responseBody = {
+            statusCode: this.statusCode,
             message: this.message,
         };
         // Send the response
@@ -40,6 +41,7 @@ class ApiResponseWithData extends ApiResponse {
         }
         // Build the response body
         const responseBody = {
+            statusCode: this.statusCode,
             message: this.message,
             data: this.data,
         };
@@ -53,45 +55,45 @@ class ApiResponseWithData extends ApiResponse {
 // Error response classes
 class NotFoundResponse extends ApiResponse {
     constructor(message = 'Resource Not Found') {
-        super(http_status_codes_1.StatusCodes.NOT_FOUND, message);
+        super(axios_1.HttpStatusCode.NotFound, message);
     }
 }
 exports.NotFoundResponse = NotFoundResponse;
 class ForbiddenResponse extends ApiResponse {
     constructor(message = 'Access Forbidden') {
-        super(http_status_codes_1.StatusCodes.FORBIDDEN, message);
+        super(axios_1.HttpStatusCode.Forbidden, message);
     }
 }
 exports.ForbiddenResponse = ForbiddenResponse;
 class BadRequestResponse extends ApiResponse {
     constructor(message = 'Bad Request') {
-        super(http_status_codes_1.StatusCodes.BAD_REQUEST, message);
+        super(axios_1.HttpStatusCode.BadRequest, message);
     }
 }
 exports.BadRequestResponse = BadRequestResponse;
 class InternalErrorResponse extends ApiResponse {
     constructor(message = 'Internal Server Error') {
-        super(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR, message);
+        super(axios_1.HttpStatusCode.InternalServerError, message);
     }
 }
 exports.InternalErrorResponse = InternalErrorResponse;
 // Success response classes without data
 class SuccessMsgResponse extends ApiResponse {
     constructor(message) {
-        super(http_status_codes_1.StatusCodes.OK, message);
+        super(axios_1.HttpStatusCode.Ok, message);
     }
 }
 exports.SuccessMsgResponse = SuccessMsgResponse;
 class FailureMsgResponse extends ApiResponse {
     constructor(message) {
-        super(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR, message);
+        super(axios_1.HttpStatusCode.InternalServerError, message);
     }
 }
 exports.FailureMsgResponse = FailureMsgResponse;
 // Success response class with data
 class SuccessResponse extends ApiResponseWithData {
     constructor(message, data) {
-        super(http_status_codes_1.StatusCodes.OK, message, data);
+        super(axios_1.HttpStatusCode.Ok, message, data);
     }
 }
 exports.SuccessResponse = SuccessResponse;

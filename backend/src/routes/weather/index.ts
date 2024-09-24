@@ -46,7 +46,7 @@ router.get(
       return next(new BadRequestError("City and country are required"));
     }
 
-    const response = await axiosInstance.get("forecast", {
+    const response = await axiosInstance.get("/forecast/daily", {
       params: { city, country },
     });
     return new SuccessResponse("Success", response.data).send(res);

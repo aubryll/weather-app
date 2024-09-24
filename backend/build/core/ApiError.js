@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InternalError = exports.NotFoundError = exports.BadRequestError = exports.ForbiddenError = exports.ApiError = exports.ErrorResponse = void 0;
-const http_status_codes_1 = require("http-status-codes");
 const ApiResponse_1 = require("./ApiResponse");
+const axios_1 = require("axios");
 class ErrorResponse extends ApiResponse_1.ApiResponse {
     constructor(statusCode, message) {
         super(statusCode, message);
@@ -21,7 +21,7 @@ class ApiError extends Error {
         let message = err.message;
         // In production, hide detailed error messages for internal server errors
         if (process.env.NODE_ENV === 'production' &&
-            err.statusCode === http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR) {
+            err.statusCode === axios_1.HttpStatusCode.InternalServerError) {
             message = 'An unexpected error occurred.';
         }
         return new ErrorResponse(err.statusCode, message).send(res);
@@ -30,25 +30,25 @@ class ApiError extends Error {
 exports.ApiError = ApiError;
 class ForbiddenError extends ApiError {
     constructor(message = 'Access Forbidden') {
-        super(http_status_codes_1.StatusCodes.FORBIDDEN, message);
+        super(axios_1.HttpStatusCode.Forbidden, message);
     }
 }
 exports.ForbiddenError = ForbiddenError;
 class BadRequestError extends ApiError {
     constructor(message = 'Bad Request') {
-        super(http_status_codes_1.StatusCodes.BAD_REQUEST, message);
+        super(axios_1.HttpStatusCode.BadRequest, message);
     }
 }
 exports.BadRequestError = BadRequestError;
 class NotFoundError extends ApiError {
     constructor(message = 'Resource Not Found') {
-        super(http_status_codes_1.StatusCodes.NOT_FOUND, message);
+        super(axios_1.HttpStatusCode.NotFound, message);
     }
 }
 exports.NotFoundError = NotFoundError;
 class InternalError extends ApiError {
     constructor(message = 'Internal Server Error') {
-        super(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR, message);
+        super(axios_1.HttpStatusCode.InternalServerError, message);
     }
 }
 exports.InternalError = InternalError;

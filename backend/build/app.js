@@ -14,5 +14,14 @@ app.use(express_1.default.json());
 app.use('/', routes_1.default);
 // catch 404 and forward to error handler
 app.use((_0, _1, next) => next(new ApiError_1.NotFoundError()));
+// Middleware Error Handler
+app.use((err, req, res, next) => {
+    if (err instanceof ApiError_1.ApiError) {
+        ApiError_1.ApiError.handle(err, res);
+    }
+    else {
+        ApiError_1.ApiError.handle(new ApiError_1.InternalError(), res);
+    }
+});
 exports.default = app;
 //# sourceMappingURL=app.js.map

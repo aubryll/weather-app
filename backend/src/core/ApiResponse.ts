@@ -1,9 +1,9 @@
 import { Response } from 'express';
-import { StatusCodes } from 'http-status-codes';
+import { HttpStatusCode } from 'axios';
 
 export abstract class ApiResponse {
   constructor(
-    protected statusCode: StatusCodes,
+    protected statusCode: HttpStatusCode,
     protected message: string,
   ) {}
 
@@ -15,6 +15,7 @@ export abstract class ApiResponse {
 
     // Build the response body
     const responseBody = {
+      statusCode: this.statusCode,
       message: this.message,
     };
 
@@ -30,7 +31,7 @@ export abstract class ApiResponse {
 // Base class for responses with data
 abstract class ApiResponseWithData<T> extends ApiResponse {
   constructor(
-    statusCode: StatusCodes,
+    statusCode: HttpStatusCode,
     message: string,
     protected data: T,
   ) {
@@ -45,6 +46,7 @@ abstract class ApiResponseWithData<T> extends ApiResponse {
 
     // Build the response body
     const responseBody = {
+      statusCode: this.statusCode,
       message: this.message,
       data: this.data,
     };
@@ -61,44 +63,44 @@ abstract class ApiResponseWithData<T> extends ApiResponse {
 // Error response classes
 export class NotFoundResponse extends ApiResponse {
   constructor(message = 'Resource Not Found') {
-    super(StatusCodes.NOT_FOUND, message);
+    super(HttpStatusCode.NotFound, message);
   }
 }
 
 export class ForbiddenResponse extends ApiResponse {
   constructor(message = 'Access Forbidden') {
-    super(StatusCodes.FORBIDDEN, message);
+    super(HttpStatusCode.Forbidden, message);
   }
 }
 
 export class BadRequestResponse extends ApiResponse {
   constructor(message = 'Bad Request') {
-    super(StatusCodes.BAD_REQUEST, message);
+    super(HttpStatusCode.BadRequest, message);
   }
 }
 
 export class InternalErrorResponse extends ApiResponse {
   constructor(message = 'Internal Server Error') {
-    super(StatusCodes.INTERNAL_SERVER_ERROR, message);
+    super(HttpStatusCode.InternalServerError, message);
   }
 }
 
 // Success response classes without data
 export class SuccessMsgResponse extends ApiResponse {
   constructor(message: string) {
-    super(StatusCodes.OK, message);
+    super(HttpStatusCode.Ok, message);
   }
 }
 
 export class FailureMsgResponse extends ApiResponse {
   constructor(message: string) {
-    super(StatusCodes.INTERNAL_SERVER_ERROR, message);
+    super(HttpStatusCode.InternalServerError, message);
   }
 }
 
 // Success response class with data
 export class SuccessResponse<T> extends ApiResponseWithData<T> {
   constructor(message: string, data: T) {
-    super(StatusCodes.OK, message, data);
+    super(HttpStatusCode.Ok, message, data);
   }
 }
