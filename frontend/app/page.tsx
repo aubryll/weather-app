@@ -29,11 +29,13 @@ import { CountryResponse } from "./core/types/Country";
 import { Controller, useForm } from "react-hook-form";
 import { useIsFetching, useIsMutating } from "@tanstack/react-query";
 
+// Define the structure of the form data
 type CountryCityForm = {
-  country: CountryResponse.Country;
-  city: string;
+  country: CountryResponse.Country; // Selected country
+  city: string; // Selected city
 };
 
+// Default values for the form fields
 const defaultValues: CountryCityForm = {
   country: {
     name: "Zambia",
@@ -44,68 +46,83 @@ const defaultValues: CountryCityForm = {
   city: "Lusaka",
 };
 
+// Main component
 export default function Home() {
-  //Hook forms
+  // Initialize the form with default values using react-hook-form
   const { control, watch, setValue } = useForm<CountryCityForm>({
     defaultValues,
   });
-  const country = React.useRef<CountryResponse.Country>(defaultValues.country);
-  country.current = watch("country");
 
-  const city = React.useRef<string>(defaultValues.city);
-  city.current = watch("city");
+  // Update variables when form values change
+  const country = watch("country", defaultValues.country);
+  const city = watch("city", defaultValues.city);
 
-  //APIs
+  // Fetch the list of countries
   const countriesApi = useCountries();
+
+  // Mutation to fetch cities based on the selected country
   const citiesMutation = useCountryCities();
+
+  // Fetch current weather data for the selected city and country
   const currentWeatherApi = useCurrentWeather({
-    city: city.current,
-    country: country.current.iso2,
-  });
-  const forecast = useForecast({
-    city: city.current,
-    country: country.current.iso2,
+    city: city,
+    country: country.iso2,
   });
 
-  //Processed data
+  // Fetch weather forecast data for the selected city and country
+  const forecastApi = useForecast({
+    city: city,
+    country: country.iso2,
+  });
+
+  // Extract the latest current weather data using useMemo for performance optimization
   const currentWeather = useMemo(() => {
     const responseData = currentWeatherApi.data?.data.data;
-    return responseData?.reverse()[0];
+    return responseData?.[responseData.length - 1];
   }, [currentWeatherApi.data]);
 
-  const formatDate = useCallback((date: string) => {
+  // Function to format date strings into a readable format
+  const formatDate = useCallback((dateString: string) => {
     try {
-      const parsedDate = parseISO(date);
+      const parsedDate = parseISO(dateString);
       return format(parsedDate, "EEEE, MMMM do, yyyy");
     } catch (error) {
-      return date;
+      return dateString; // Return the original date string if parsing fails
     }
   }, []);
 
-  //Data loaders
+  // Determine if any data fetching or mutations are currently in progress
   const isFetching = useIsFetching();
   const isMutating = useIsMutating();
   const isLoading = isFetching > 0 || isMutating > 0;
 
-  //Data manipulations
-  const handleOnCountryChange = useCallback(
-    ({ name }: CountryResponse.Country) =>
+  // Handle changes to the country selection
+  const handleOnCountryChange = useCallback(() => {
+    // Fetch cities for the selected country
+      if(!citiesMutation.isPending){
       citiesMutation.mutate({
-        country: name,
-      }),
-    []
-  );
+        country: country.name,
+      });
+  }
+  }, [citiesMutation.mutate, country]);
 
+  // After cities are loaded, set the first city as the default selection
   const handleOnCitiesLoaded = useCallback(() => {
-    const firstCity = citiesMutation.data?.data[0]
-    if(firstCity && firstCity !== city.current){
+    const firstCity = citiesMutation.data?.data[0];
+    if (firstCity && firstCity !== city) {
       setValue("city", firstCity);
     }
-  }, [citiesMutation.data])
+  }, [citiesMutation.data?.data, city, setValue]);
 
-  useEffect(() => handleOnCountryChange(defaultValues.country), [])
-  useEffect(() => handleOnCitiesLoaded(), [handleOnCitiesLoaded])
+  // Fetch cities for the default country when the component mounts
+  useEffect(() => {
+    handleOnCountryChange();
+  }, [handleOnCountryChange]);
 
+  // Update the city selection when the list of cities changes
+  useEffect(() => {
+    handleOnCitiesLoaded();
+  }, [handleOnCitiesLoaded]);
   return (
     <Container maxWidth="lg">
       <Grid2 container spacing={6}>
@@ -126,10 +143,7 @@ export default function Home() {
                   autoHighlight
                   disabled={isLoading}
                   value={value}
-                  onChange={(_e, v, _x) => {
-                    onChange(v);
-                    handleOnCountryChange(v);
-                  }}
+                  onChange={(_e, v, _x) => onChange(v)}
                   isOptionEqualToValue={(option, value) =>
                     option.iso2 === value.iso2
                   }
@@ -268,7 +282,7 @@ export default function Home() {
 
         <Grid2 size={{ xs: 12, md: 5 }}>
           <List>
-            {forecast.data?.data.data.map((item, index, array) => (
+            {forecastApi.data?.data.data.map((item, index, array) => (
               <React.Fragment key={item.datetime || index}>
                 <ListItem alignItems="flex-start">
                   <ListItemAvatar>
