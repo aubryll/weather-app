@@ -8,13 +8,13 @@
 ---
 
 ### Mobile View - Current Weather
-![Application in Mobile View - Current Weather](./img/mobile-weather.jpg)
+![Application in Mobile View - Current Weather](./img/mobile-forecast.png)
 *This view focuses on the current day's weather information, including temperature, humidity, wind speed, and more, optimized for mobile devices.*
 
 ---
 
 ### Mobile View - 16-Day Weather Forecast
-![Application in Mobile View - 16-Day Weather Forecast](./img/mobile-forecast.jpg)
+![Application in Mobile View - 16-Day Weather Forecast](./img/mobile-weather.png)
 *This screen provides a detailed 16-day weather forecast, displayed in a user-friendly format, ideal for quick glances on mobile devices.*
 
 # Weather Application
