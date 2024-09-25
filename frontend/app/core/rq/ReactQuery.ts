@@ -1,22 +1,20 @@
 // Import necessary hooks and utilities from @tanstack/react-query and custom modules
 import {
-  useMutation,
-  UseMutationResult,
   useQuery,
   UseQueryResult,
 } from "@tanstack/react-query"; // React Query hook and types for data fetching and caching
-import { axiosInstance } from "./util/AxiosInstance"; // Custom configured Axios instance for making HTTP requests
-import { apiRoutes } from "./util/routes"; // Defined API route constants used in the application
-import { pathToUrl } from "./util/router"; // Utility function to construct URLs from API routes and parameters
-import { WeatherResponse } from "./types/Weather";
-import { ForecastResponse } from "./types/Forecast";
-import { CountryResponse } from "./types/Country";
-import { CityRequest, CityResponse } from "./types/City";
+import { axiosInstance } from "../util/AxiosInstance"; // Custom configured Axios instance for making HTTP requests
+import { apiRoutes } from "../util/routes"; // Defined API route constants used in the application
+import { pathToUrl } from "../util/router"; // Utility function to construct URLs from API routes and parameters
+import { WeatherResponse } from "../types/Weather";
+import { ForecastResponse } from "../types/Forecast";
+import { CityResponse } from "../types/City";
+
 
 // Define the type for the request parameters expected by the API calls
 type RequestParam = {
-  city: string;
-  country: string;
+  city?: string;
+  country?: string;
 };
 
 /**
@@ -45,21 +43,20 @@ const fetchForecast = ({
     .get(pathToUrl(apiRoutes.getForecast, { city, country }))
     .then((response) => response.data);
 
-/**
- * Function to fetch a list of all countries and their flags
- * @returns {Promise<CountryResponse.Response>} - Axios promise with the countries
- * */
-const fetchCountries = (): Promise<CountryResponse.Response> =>
-  axiosInstance.get(apiRoutes.getCountries).then((response) => response.data);
 
 /**
- * Function to fetch a list of all cities in the given country
- *  * @param {CityRequest} param - An object containing the country
- * @returns {Promise<CityResponse>} - Axios promise with the cities
+ * Function to fetch a list of all cities with a similar prefix
+ *  * @param {cityPrefix} param - An object containing the country
+ * @returns {Promise<CityResponse.Response>} - Axios promise with the cities
  * */
-const fetchCountryCities = (cityRequest: CityRequest): Promise<CityResponse> =>
+const searchCityAndCountry = (cityPrefix?: String): Promise<CityResponse.Response> =>
   axiosInstance
-    .post(apiRoutes.getCountryCities, cityRequest)
+    .get(`${apiRoutes.searchCityAndCountry}=${cityPrefix}`, {
+      headers: {
+        'X-RapidAPI-Key': process.env.NEXT_PUBLIC_X_RAPID_API_KEY,
+        'X-RapidAPI-Host': process.env.NEXT_PUBLIC_X_RAPID_API_HOST,
+      }
+    })
     .then((response) => response.data);
 
 /**
@@ -93,27 +90,13 @@ export const useForecast = ({
   });
 
 /**
- * Custom React Query hook to fetch countries and their flags.
+ * Custom React Query hook to fetch cities
  * @returns {UseQueryResult<CountryResponse, Error>} - React Query result containing countries data or an error
  */
-export const useCountries = (): UseQueryResult<CountryResponse.Response, Error> =>
+export const useCities = (prefix?: string): UseQueryResult<CityResponse.Response, Error> =>
   useQuery({
-    queryKey: ["countries"],
-    queryFn: () => fetchCountries(),
+    queryKey: ["cities", prefix],
+    queryFn: () => searchCityAndCountry(prefix),
+    enabled: !!prefix && prefix.length> 3
   });
 
-/**
- * Custom React Query hook to fetch city of the provided country
- * @param {RequestParam} param - An object containing country
- * @returns {UseMutationResult<CityResponse, Error, CityRequest, unknown> } - React Query result containing cities data or an error
- */
-export const useCountryCities = (): UseMutationResult<
-  CityResponse,
-  Error,
-  CityRequest,
-  unknown
-> =>
-  useMutation({
-    mutationKey: ["cities"],
-    mutationFn: (data: CityRequest) => fetchCountryCities(data),
-  });
