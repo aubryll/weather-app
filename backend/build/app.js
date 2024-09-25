@@ -21,6 +21,7 @@ app.use((err, req, res, next) => {
     }
     else {
         ApiError_1.ApiError.handle(new ApiError_1.InternalError(), res);
+        console.error(err);
     }
 });
 exports.default = app;
