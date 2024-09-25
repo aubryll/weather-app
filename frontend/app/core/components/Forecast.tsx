@@ -39,8 +39,8 @@ const ForecastComponent = ({forecast, dateFormatter}: ForecastProps) => {
         )}
         <List
           sx={{
-            height: "50vh",
-            overflowY: "auto",
+            height: {md: "50vh"},
+            overflowY: { md: 'auto' },
           }}
         >
           {data?.data.map((item, index, array) => (

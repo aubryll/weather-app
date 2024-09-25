@@ -79,7 +79,12 @@ export default function Home() {
         spacing={6}
         mt={9}
         p={4}
-        sx={{ height: "85vh" }}
+        sx={{
+          mt: { xs: 2, md: 9 },
+          mb: { xs: 16},
+          p: { xs: 2, md: 4 },
+          height: { md: "85vh" },
+        }}
       >
         <Searchbar
           options={searchCityApi.data?.data}
